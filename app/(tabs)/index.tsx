@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Alert,
   Image,
@@ -48,7 +48,15 @@ export default function CheckScreen() {
   const [photo, setPhoto] = useState<SelectedPhoto | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<CheckResult | null>(null);
+  const [checkedSummary, setCheckedSummary] = useState<string>("");
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const scrollRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    if (result || errorMessage) {
+      scrollRef.current?.scrollTo({ y: 0, animated: true });
+    }
+  }, [result, errorMessage]);
 
   const hasInput = inputMode === "text" ? messageText.trim().length > 0 : photo !== null;
 
@@ -122,6 +130,7 @@ export default function CheckScreen() {
         imageMediaType: photo?.mediaType,
       });
       setResult(outcome);
+      setCheckedSummary(inputMode === "text" ? toSnippet(messageText) : "📷 Photo submitted");
       playVerdictHaptic(outcome.verdict);
 
       if (historyEnabled) {
@@ -150,104 +159,136 @@ export default function CheckScreen() {
     <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={["top"]}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <ScrollView
+          ref={scrollRef}
           contentContainerStyle={[styles.scrollContent, { padding: theme.spacing.lg }]}
           keyboardShouldPersistTaps="handled"
         >
           <Text style={[styles.title, { color: theme.colors.text, fontSize: theme.fontSize.title }]}>
             Scam Checker
           </Text>
-          <Text
-            style={[
-              styles.subtitle,
-              { color: theme.colors.subtleText, fontSize: theme.fontSize.body, marginBottom: theme.spacing.lg },
-            ]}
-          >
-            Got a suspicious text, email, or letter? We'll give you a plain answer.
-          </Text>
 
-          <SegmentedControl
-            accessibilityLabel="Choose how to submit the message"
-            options={[
-              { label: "✍️ Type / Paste", value: "text" },
-              { label: "📷 Photo", value: "photo" },
-            ]}
-            value={inputMode}
-            onChange={switchMode}
-          />
-
-          <View style={{ marginTop: theme.spacing.lg }}>
-            {inputMode === "text" ? (
-              <TextInput
-                style={[
-                  styles.textInput,
-                  {
-                    borderColor: theme.colors.border,
-                    borderRadius: theme.radius.md,
-                    color: theme.colors.text,
-                    fontSize: theme.fontSize.body,
-                    backgroundColor: theme.colors.surface,
-                  },
-                ]}
-                multiline
-                placeholder="Example: You've won a $1000 gift card, click here to claim..."
-                placeholderTextColor={theme.colors.subtleText}
-                value={messageText}
-                onChangeText={(value) => {
-                  setMessageText(value);
-                  setResult(null);
-                  setErrorMessage(null);
-                }}
-                accessibilityLabel="Message text to check"
-              />
-            ) : photo ? (
-              <View style={styles.photoPreviewWrap}>
-                <Image source={{ uri: photo.uri }} style={[styles.photoPreview, { borderRadius: theme.radius.md }]} />
-                <SecondaryButton
-                  label="Remove Photo"
-                  tone="danger"
-                  onPress={() => {
-                    setPhoto(null);
-                    setResult(null);
-                    setErrorMessage(null);
-                  }}
-                  style={styles.removePhotoButton}
-                />
-              </View>
-            ) : (
-              <View style={styles.photoButtonRow}>
-                <SecondaryButton
-                  label="📷 Take Photo"
-                  onPress={() => pickPhoto("camera")}
-                  style={styles.photoButton}
-                  accessibilityLabel="Take a photo of the message"
-                />
-                <SecondaryButton
-                  label="🖼️ Choose Photo"
-                  onPress={() => pickPhoto("library")}
-                  style={styles.photoButton}
-                  accessibilityLabel="Choose a photo from your library"
-                />
-              </View>
-            )}
-          </View>
-
-          <PrimaryButton
-            label="Check It"
-            onPress={handleCheck}
-            disabled={!hasInput}
-            loading={loading}
-            style={{ marginTop: theme.spacing.lg }}
-            accessibilityLabel="Check this message"
-          />
-          {loading && (
+          {!result && (
             <Text
               style={[
-                styles.loadingHint,
-                { color: theme.colors.subtleText, fontSize: theme.fontSize.caption, marginTop: theme.spacing.sm },
+                styles.subtitle,
+                { color: theme.colors.subtleText, fontSize: theme.fontSize.body, marginBottom: theme.spacing.lg },
               ]}
             >
-              Checking... this takes about 10 seconds
+              Got a suspicious text, email, or letter? We'll give you a plain answer.
             </Text>
+          )}
+
+          {result && (
+            <View
+              style={[
+                styles.checkedSummary,
+                {
+                  backgroundColor: theme.colors.surface,
+                  borderRadius: theme.radius.md,
+                  padding: theme.spacing.md,
+                  marginTop: theme.spacing.md,
+                },
+              ]}
+            >
+              <Text style={{ color: theme.colors.subtleText, fontSize: theme.fontSize.caption, marginBottom: 2 }}>
+                You checked
+              </Text>
+              <Text style={{ color: theme.colors.text, fontSize: theme.fontSize.body }} numberOfLines={3}>
+                {checkedSummary}
+              </Text>
+            </View>
+          )}
+
+          {!result && (
+            <>
+              <SegmentedControl
+                accessibilityLabel="Choose how to submit the message"
+                options={[
+                  { label: "✍️ Type / Paste", value: "text" },
+                  { label: "📷 Photo", value: "photo" },
+                ]}
+                value={inputMode}
+                onChange={switchMode}
+              />
+
+              <View style={{ marginTop: theme.spacing.lg }}>
+                {inputMode === "text" ? (
+                  <TextInput
+                    style={[
+                      styles.textInput,
+                      {
+                        borderColor: theme.colors.border,
+                        borderRadius: theme.radius.md,
+                        color: theme.colors.text,
+                        fontSize: theme.fontSize.body,
+                        backgroundColor: theme.colors.surface,
+                      },
+                    ]}
+                    multiline
+                    placeholder="Example: You've won a $1000 gift card, click here to claim..."
+                    placeholderTextColor={theme.colors.subtleText}
+                    value={messageText}
+                    onChangeText={(value) => {
+                      setMessageText(value);
+                      setResult(null);
+                      setErrorMessage(null);
+                    }}
+                    accessibilityLabel="Message text to check"
+                  />
+                ) : photo ? (
+                  <View style={styles.photoPreviewWrap}>
+                    <Image
+                      source={{ uri: photo.uri }}
+                      style={[styles.photoPreview, { borderRadius: theme.radius.md }]}
+                    />
+                    <SecondaryButton
+                      label="Remove Photo"
+                      tone="danger"
+                      onPress={() => {
+                        setPhoto(null);
+                        setResult(null);
+                        setErrorMessage(null);
+                      }}
+                      style={styles.removePhotoButton}
+                    />
+                  </View>
+                ) : (
+                  <View style={styles.photoButtonRow}>
+                    <SecondaryButton
+                      label="📷 Take Photo"
+                      onPress={() => pickPhoto("camera")}
+                      style={styles.photoButton}
+                      accessibilityLabel="Take a photo of the message"
+                    />
+                    <SecondaryButton
+                      label="🖼️ Choose Photo"
+                      onPress={() => pickPhoto("library")}
+                      style={styles.photoButton}
+                      accessibilityLabel="Choose a photo from your library"
+                    />
+                  </View>
+                )}
+              </View>
+
+              <PrimaryButton
+                label="Check It"
+                onPress={handleCheck}
+                disabled={!hasInput}
+                loading={loading}
+                style={{ marginTop: theme.spacing.lg }}
+                accessibilityLabel="Check this message"
+              />
+              {loading && (
+                <Text
+                  style={[
+                    styles.loadingHint,
+                    { color: theme.colors.subtleText, fontSize: theme.fontSize.caption, marginTop: theme.spacing.sm },
+                  ]}
+                >
+                  Checking... this takes about 10 seconds
+                </Text>
+              )}
+            </>
           )}
 
           {errorMessage && (
@@ -338,6 +379,7 @@ const styles = StyleSheet.create({
   photoPreview: { width: "100%", height: 220, marginBottom: 12 },
   removePhotoButton: { alignSelf: "center" },
   loadingHint: { textAlign: "center" },
+  checkedSummary: {},
   errorBox: {},
   teaser: {},
   disclaimer: { textAlign: "center", lineHeight: 20 },
