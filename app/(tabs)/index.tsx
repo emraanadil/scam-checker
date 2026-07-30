@@ -4,7 +4,6 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -14,16 +13,14 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import * as ImagePicker from "expo-image-picker";
 import * as Haptics from "expo-haptics";
-import { router } from "expo-router";
 import { VerdictCard } from "../../components/VerdictCard";
 import { SegmentedControl } from "../../components/SegmentedControl";
 import { PrimaryButton } from "../../components/PrimaryButton";
 import { SecondaryButton } from "../../components/SecondaryButton";
-import { useTheme, getVerdictTokens } from "../../constants/theme";
+import { useTheme } from "../../constants/theme";
 import { useSettings } from "../../context/SettingsContext";
 import { useHistory } from "../../context/HistoryContext";
 import { checkMessage, CheckRequestError, type CheckResult } from "../../lib/api";
-import { formatRelativeTime } from "../../lib/time";
 
 interface SelectedPhoto {
   uri: string;
@@ -41,7 +38,7 @@ function toSnippet(text: string): string {
 export default function CheckScreen() {
   const theme = useTheme();
   const { historyEnabled } = useSettings();
-  const { entries, addEntry } = useHistory();
+  const { addEntry } = useHistory();
 
   const [inputMode, setInputMode] = useState<"text" | "photo">("text");
   const [messageText, setMessageText] = useState("");
@@ -152,15 +149,12 @@ export default function CheckScreen() {
     }
   }
 
-  const recentEntry = entries[0];
-  const showRecentTeaser = !result && !errorMessage && !loading && recentEntry;
-
   return (
     <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={["top"]}>
       <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === "ios" ? "padding" : undefined}>
         <ScrollView
           ref={scrollRef}
-          contentContainerStyle={[styles.scrollContent, { padding: theme.spacing.lg }]}
+          contentContainerStyle={[styles.scrollContent, { padding: theme.spacing.md }]}
           keyboardShouldPersistTaps="handled"
         >
           <Text style={[styles.title, { color: theme.colors.text, fontSize: theme.fontSize.title }]}>
@@ -168,14 +162,24 @@ export default function CheckScreen() {
           </Text>
 
           {!result && (
-            <Text
+            <View
               style={[
-                styles.subtitle,
-                { color: theme.colors.subtleText, fontSize: theme.fontSize.body, marginBottom: theme.spacing.lg },
+                styles.aiNote,
+                {
+                  backgroundColor: theme.colors.surface,
+                  borderColor: theme.colors.border,
+                  borderRadius: theme.radius.md,
+                  padding: theme.spacing.sm,
+                  marginTop: theme.spacing.sm,
+                  marginBottom: theme.spacing.md,
+                },
               ]}
             >
-              Got a suspicious text, email, or letter? We'll give you a plain answer.
-            </Text>
+              <Text style={styles.aiNoteEmoji}>🤖</Text>
+              <Text style={[styles.aiNoteText, { color: theme.colors.subtleText, fontSize: theme.fontSize.caption }]}>
+                AI can make mistakes — when unsure, call your bank or a trusted family member.
+              </Text>
+            </View>
           )}
 
           {result && (
@@ -186,7 +190,7 @@ export default function CheckScreen() {
                   backgroundColor: theme.colors.surface,
                   borderRadius: theme.radius.md,
                   padding: theme.spacing.md,
-                  marginTop: theme.spacing.md,
+                  marginTop: theme.spacing.sm,
                 },
               ]}
             >
@@ -211,7 +215,7 @@ export default function CheckScreen() {
                 onChange={switchMode}
               />
 
-              <View style={{ marginTop: theme.spacing.lg }}>
+              <View style={{ marginTop: theme.spacing.md }}>
                 {inputMode === "text" ? (
                   <TextInput
                     style={[
@@ -275,7 +279,7 @@ export default function CheckScreen() {
                 onPress={handleCheck}
                 disabled={!hasInput}
                 loading={loading}
-                style={{ marginTop: theme.spacing.lg }}
+                style={{ marginTop: theme.spacing.md }}
                 accessibilityLabel="Check this message"
               />
               {loading && (
@@ -300,7 +304,7 @@ export default function CheckScreen() {
                   backgroundColor: theme.colors.errorBg,
                   borderRadius: theme.radius.md,
                   padding: theme.spacing.md,
-                  marginTop: theme.spacing.lg,
+                  marginTop: theme.spacing.md,
                 },
               ]}
             >
@@ -316,46 +320,10 @@ export default function CheckScreen() {
             <SecondaryButton
               label="Check Another Message"
               onPress={resetAll}
-              style={{ marginTop: theme.spacing.lg, alignSelf: "center" }}
+              style={{ marginTop: theme.spacing.md, alignSelf: "center" }}
               accessibilityLabel="Check another message"
             />
           )}
-
-          {showRecentTeaser && (
-            <Pressable
-              onPress={() => router.push("/(tabs)/history")}
-              style={[
-                styles.teaser,
-                {
-                  backgroundColor: theme.colors.surface,
-                  borderRadius: theme.radius.md,
-                  padding: theme.spacing.md,
-                  marginTop: theme.spacing.xl,
-                },
-              ]}
-              accessibilityRole="button"
-              accessibilityLabel="View your check history"
-            >
-              <Text style={{ color: theme.colors.subtleText, fontSize: theme.fontSize.caption }}>
-                Last checked {formatRelativeTime(recentEntry.timestamp)}
-              </Text>
-              <Text
-                style={{ color: getVerdictTokens(theme, recentEntry.verdict).border, fontSize: theme.fontSize.body, fontWeight: "700" }}
-              >
-                {getVerdictTokens(theme, recentEntry.verdict).label} — view history →
-              </Text>
-            </Pressable>
-          )}
-
-          <Text
-            style={[
-              styles.disclaimer,
-              { color: theme.colors.subtleText, fontSize: theme.fontSize.caption, marginTop: theme.spacing.xl },
-            ]}
-          >
-            This app uses AI and can make mistakes. When in doubt, don't click links or share personal
-            information — call your bank or family using a number you already know and trust.
-          </Text>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -364,23 +332,27 @@ export default function CheckScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  scrollContent: { paddingBottom: 48 },
+  scrollContent: { flexGrow: 1, paddingBottom: 16 },
   title: { fontWeight: "800", textAlign: "center" },
-  subtitle: { textAlign: "center", lineHeight: 26 },
+  aiNote: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+  },
+  aiNoteEmoji: { fontSize: 18, marginRight: 8 },
+  aiNoteText: { flex: 1, lineHeight: 18 },
   textInput: {
-    minHeight: 120,
+    minHeight: 96,
     borderWidth: 2,
-    padding: 16,
+    padding: 14,
     textAlignVertical: "top",
   },
   photoButtonRow: { flexDirection: "row", gap: 16 },
   photoButton: { flex: 1 },
   photoPreviewWrap: { alignItems: "center" },
-  photoPreview: { width: "100%", height: 220, marginBottom: 12 },
+  photoPreview: { width: "100%", height: 200, marginBottom: 12 },
   removePhotoButton: { alignSelf: "center" },
   loadingHint: { textAlign: "center" },
   checkedSummary: {},
   errorBox: {},
-  teaser: {},
-  disclaimer: { textAlign: "center", lineHeight: 20 },
 });

@@ -30,8 +30,8 @@ function SectionLabel({ children }: { children: string }) {
         fontWeight: "700",
         textTransform: "uppercase",
         letterSpacing: 0.5,
-        marginBottom: theme.spacing.sm,
-        marginTop: theme.spacing.lg,
+        marginBottom: theme.spacing.xs,
+        marginTop: theme.spacing.md,
       }}
     >
       {children}
@@ -53,7 +53,7 @@ export default function SettingsScreen() {
 
   return (
     <SafeAreaView style={[styles.flex, { backgroundColor: theme.colors.background }]} edges={["top"]}>
-      <ScrollView contentContainerStyle={{ padding: theme.spacing.lg }}>
+      <ScrollView contentContainerStyle={{ padding: theme.spacing.md }}>
         <Text style={[styles.title, { color: theme.colors.text, fontSize: theme.fontSize.title }]}>Settings</Text>
 
         <SectionLabel>Text Size</SectionLabel>
