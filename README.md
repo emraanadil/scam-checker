@@ -6,15 +6,23 @@ do next. Built for older adults who are frequent scam targets.
 
 - `App.tsx`, `components/`, `lib/`, `constants/` — the Expo (React Native +
   TypeScript) app.
-- `worker/` — a Cloudflare Worker backend that holds the Anthropic API key and
-  proxies the scam-check request to Claude.
+- `worker/` — a Cloudflare Worker backend that holds a Google Gemini API key
+  and proxies the scam-check request to Gemini (free tier).
+
+Get a free Gemini API key at https://aistudio.google.com/apikey — no credit
+card required. Note: on the free tier, Google may use submitted data to
+improve their products (this is different from a paid tier). Since users may
+paste in scam texts containing personal info, mention this in the app's
+privacy policy (`PRIVACY.md` already does) and reconsider before scaling past
+an MVP.
 
 ## 1. Run the backend locally
 
 ```
 cd worker
-cp .dev.vars.example .dev.vars   # then paste in a real Anthropic API key
-npm run dev                       # starts on http://localhost:8787
+npm install                        # first time only
+cp .dev.vars.example .dev.vars     # then paste in a real Gemini API key
+npm run dev                        # starts on http://localhost:8787
 ```
 
 Sanity check it's working:
@@ -54,9 +62,9 @@ via Expo Go against `localhost` only works while your computer is running.
 
 ```
 cd worker
-npx wrangler login                        # opens a browser to log into Cloudflare (free account is fine)
-npx wrangler secret put ANTHROPIC_API_KEY # paste your real key when prompted
-npm run deploy                            # deploys to https://senior-scam-checker-api.<your-subdomain>.workers.dev
+npx wrangler login                     # opens a browser to log into Cloudflare (free account is fine)
+npx wrangler secret put GEMINI_API_KEY # paste your real key when prompted
+npm run deploy                         # deploys to https://senior-scam-checker-api.<your-subdomain>.workers.dev
 ```
 
 Then set that URL for the app build (see `eas.json` / EAS secrets below), so

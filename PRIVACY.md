@@ -9,8 +9,8 @@ submit.
 ## What we collect
 
 When you use the "Check It" feature, the text you type/paste or the photo you
-take/choose is sent to our server, which forwards it to Anthropic's Claude AI
-to generate a scam-likelihood verdict. We do not require an account, and we do
+take/choose is sent to our server, which forwards it to Google's Gemini AI to
+generate a scam-likelihood verdict. We do not require an account, and we do
 not collect your name, email address, or contact list.
 
 ## What we don't do
@@ -21,9 +21,10 @@ not collect your name, email address, or contact list.
 
 ## Third parties
 
-Submitted text/photos are processed by Anthropic (Claude AI) solely to
-generate the scam-check result. See Anthropic's own privacy policy for how
-they handle API data: https://www.anthropic.com/legal/privacy
+Submitted text/photos are processed by Google (Gemini API) solely to generate
+the scam-check result. This app currently uses Gemini's free tier, under
+which Google may use submitted data to improve their products. See Google's
+API terms for details: https://ai.google.dev/gemini-api/terms
 
 ## Camera and photo permissions
 

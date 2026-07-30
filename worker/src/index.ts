@@ -1,8 +1,6 @@
-import Anthropic from "@anthropic-ai/sdk";
-
 export interface Env {
-  ANTHROPIC_API_KEY: string;
-  ANTHROPIC_MODEL: string;
+  GEMINI_API_KEY: string;
+  GEMINI_MODEL: string;
 }
 
 interface CheckRequestBody {
@@ -27,31 +25,34 @@ const SYSTEM_PROMPT = `You are a scam-detection assistant built for a mobile app
 
 Be cautious: if you are not confident, say "uncertain" rather than guessing. Common scam patterns to watch for: urgency/fear tactics, requests for gift cards or wire transfers, requests for passwords/PINs/SSN, "you've won" prizes, fake delivery/package notices with suspicious links, impersonation of banks/government agencies/family members, threats of arrest or account closure, mismatched sender addresses or links.
 
-Always respond by calling the report_verdict tool. Keep the reason and action in plain, simple English (a reading level a worried non-technical adult can understand in 10 seconds), one short sentence each. Never tell the user to click any link or call any number found in the suspicious message itself.`;
+Keep the reason and action in plain, simple English (a reading level a worried non-technical adult can understand in 10 seconds), one short sentence each. Never tell the user to click any link or call any number found in the suspicious message itself.
 
-const VERDICT_TOOL: Anthropic.Tool = {
-  name: "report_verdict",
-  description: "Report the scam-check verdict for the submitted text or image.",
-  input_schema: {
-    type: "object",
-    properties: {
-      verdict: {
-        type: "string",
-        enum: ["scam", "legitimate", "uncertain"],
-        description: "Overall verdict.",
-      },
-      reason: {
-        type: "string",
-        description: "One short, plain-English sentence explaining why.",
-      },
-      action: {
-        type: "string",
-        description: "One short, plain-English sentence on what to do next.",
-      },
+Respond with JSON only, matching the required schema.`;
+
+const RESPONSE_SCHEMA = {
+  type: "OBJECT",
+  properties: {
+    verdict: {
+      type: "STRING",
+      enum: ["scam", "legitimate", "uncertain"],
+      description: "Overall verdict.",
     },
-    required: ["verdict", "reason", "action"],
+    reason: {
+      type: "STRING",
+      description: "One short, plain-English sentence explaining why.",
+    },
+    action: {
+      type: "STRING",
+      description: "One short, plain-English sentence on what to do next.",
+    },
   },
+  required: ["verdict", "reason", "action"],
 };
+
+interface GeminiPart {
+  text?: string;
+  inline_data?: { mime_type: string; data: string };
+}
 
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
@@ -85,44 +86,54 @@ export default {
       return jsonResponse({ error: "Image is too large." }, 400);
     }
 
-    const content: Anthropic.ContentBlockParam[] = [];
+    const parts: GeminiPart[] = [];
     if (imageBase64) {
-      content.push({
-        type: "image",
-        source: {
-          type: "base64",
-          media_type: imageMediaType as "image/jpeg" | "image/png" | "image/gif" | "image/webp",
-          data: imageBase64,
-        },
-      });
+      parts.push({ inline_data: { mime_type: imageMediaType, data: imageBase64 } });
     }
-    content.push({
-      type: "text",
+    parts.push({
       text: text
         ? `Here is the message to check:\n\n${text}`
         : "Here is a photo of the message to check.",
     });
 
+    const model = env.GEMINI_MODEL || "gemini-3.5-flash";
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+
     try {
-      const anthropic = new Anthropic({ apiKey: env.ANTHROPIC_API_KEY });
-      const response = await anthropic.messages.create({
-        model: env.ANTHROPIC_MODEL || "claude-sonnet-5",
-        max_tokens: 500,
-        system: SYSTEM_PROMPT,
-        tools: [VERDICT_TOOL],
-        tool_choice: { type: "tool", name: "report_verdict" },
-        messages: [{ role: "user", content }],
+      const geminiResponse = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-goog-api-key": env.GEMINI_API_KEY,
+        },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+          contents: [{ role: "user", parts }],
+          generationConfig: {
+            responseMimeType: "application/json",
+            responseSchema: RESPONSE_SCHEMA,
+          },
+        }),
       });
 
-      const toolUse = response.content.find((block) => block.type === "tool_use");
-      if (!toolUse || toolUse.type !== "tool_use") {
+      if (!geminiResponse.ok) {
+        const errBody = await geminiResponse.text();
+        console.error("Gemini request failed", geminiResponse.status, errBody);
+        return jsonResponse({ error: "Scam check failed. Please try again." }, 500);
+      }
+
+      const data = (await geminiResponse.json()) as {
+        candidates?: { content?: { parts?: { text?: string }[] } }[];
+      };
+      const rawText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!rawText) {
         return jsonResponse({ error: "Model did not return a verdict." }, 502);
       }
 
-      const verdict = toolUse.input as Verdict;
+      const verdict = JSON.parse(rawText) as Verdict;
       return jsonResponse(verdict, 200);
     } catch (err) {
-      console.error("Anthropic request failed", err);
+      console.error("Gemini request failed", err);
       return jsonResponse({ error: "Scam check failed. Please try again." }, 500);
     }
   },
