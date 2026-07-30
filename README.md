@@ -102,6 +102,43 @@ You'll also need a public URL for `PRIVACY.md` in this repo — both stores
 require a privacy policy link in the listing (GitHub's raw file view or
 GitHub Pages both work for this).
 
+## 5. Connect the WhatsApp bot
+
+The same backend also answers WhatsApp messages at `/whatsapp/webhook` —
+forward a suspicious message, get a verdict reply. To connect it to a real
+WhatsApp number:
+
+1. Go to https://developers.facebook.com, create an app, add the **WhatsApp**
+   product. Meta gives you a free **test phone number** immediately — no
+   business verification needed yet, good for messaging up to 5 phone numbers
+   you verify yourself. This is enough to test the whole flow end-to-end.
+2. On the WhatsApp > API Setup page, copy the **temporary access token** and
+   the **phone number ID**.
+3. Set the secrets (the webhook needs a public HTTPS URL, so deploy first —
+   see step 3 above):
+   ```
+   cd worker
+   npx wrangler secret put WHATSAPP_ACCESS_TOKEN   # paste the token from Meta
+   ```
+   Then put the phone number ID directly in `worker/wrangler.toml` under
+   `WHATSAPP_PHONE_NUMBER_ID` (it isn't sensitive, just an ID), and pick any
+   string for `WHATSAPP_VERIFY_TOKEN` in the same file — Meta echoes it back
+   during setup to prove you own the webhook. Redeploy with `npm run deploy`
+   after editing `wrangler.toml`.
+4. Back in Meta's app dashboard, under WhatsApp > Configuration, set the
+   **Callback URL** to `https://<your-worker-url>/whatsapp/webhook` and the
+   **Verify Token** to the same string you put in `wrangler.toml`. Click
+   Verify and Save — Meta will hit the GET handshake, which is already
+   implemented and tested.
+5. Subscribe the webhook to the `messages` field, then send a scam-like text
+   to the test number from one of your 5 verified numbers — you should get a
+   verdict reply.
+
+Going from the test number to a real production number that anyone can
+message requires Meta Business Verification, which needs a registered
+business entity and can take real time to clear — plan for that separately
+once the test-number flow is confirmed working.
+
 ## What's a placeholder right now
 
 - The app icon/splash screen (`assets/icon.png`, etc.) are the generic Expo
