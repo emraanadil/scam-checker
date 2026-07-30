@@ -6,8 +6,9 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "backgroundColor": "#FFFFFF",
+    "scheme": "scamchecker",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.seniorscamchecker.app",
@@ -37,7 +38,8 @@
           "photosPermission": "Scam Checker uses your photo library so you can choose a picture of a suspicious message or letter to check.",
           "microphonePermission": false
         }
-      ]
+      ],
+      "expo-router"
     ]
   }
 }

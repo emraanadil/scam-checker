@@ -15,9 +15,17 @@ not collect your name, email address, or contact list.
 
 ## What we don't do
 
-- We do not store the text or photos you submit after the check is complete.
+- Our server does not store the text or photos you submit after generating a
+  result.
 - We do not sell or share your submissions with advertisers or data brokers.
 - We do not track you across other apps or websites.
+
+## History (stored only on your device)
+
+If "Save check history" is turned on in Settings (on by default), the app
+keeps a list of your past checks — but only on your own phone, using its
+local storage. This history is never uploaded to our server or anyone else.
+You can turn history off or clear it completely at any time from Settings.
 
 ## Third parties
 
