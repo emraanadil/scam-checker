@@ -1,0 +1,12 @@
+name = "senior-scam-checker-api"
+main = "src/index.ts"
+compatibility_date = "2026-07-01"
+compatibility_flags = ["nodejs_compat"]
+
+[observability]
+enabled = true
+
+# Set the real key with:
+#   npx wrangler secret put ANTHROPIC_API_KEY
+[vars]
+ANTHROPIC_MODEL = "claude-sonnet-5"
