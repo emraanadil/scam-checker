@@ -8,4 +8,4 @@ enabled = true
 # Set the real key with:
 #   npx wrangler secret put GEMINI_API_KEY
 [vars]
-GEMINI_MODEL = "gemini-3.5-flash"
+GEMINI_MODEL = "gemini-3.1-flash-lite"

@@ -96,7 +96,7 @@ export default {
         : "Here is a photo of the message to check.",
     });
 
-    const model = env.GEMINI_MODEL || "gemini-3.5-flash";
+    const model = env.GEMINI_MODEL || "gemini-3.1-flash-lite";
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
 
     try {
