@@ -1,1 +1,5 @@
 GEMINI_API_KEY=your-google-ai-studio-key-here
+
+# From Meta for Developers > your app > WhatsApp > API Setup
+WHATSAPP_ACCESS_TOKEN=your-temporary-or-system-user-access-token
+WHATSAPP_VERIFY_TOKEN=pick-any-string-you-want-meta-will-echo-it-back

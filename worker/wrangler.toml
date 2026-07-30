@@ -5,7 +5,10 @@ compatibility_date = "2026-07-01"
 [observability]
 enabled = true
 
-# Set the real key with:
-#   npx wrangler secret put GEMINI_API_KEY
+# Secrets (never in this file — set with `npx wrangler secret put <NAME>`):
+#   GEMINI_API_KEY
+#   WHATSAPP_ACCESS_TOKEN   — from the Meta app's WhatsApp > API Setup page
+#   WHATSAPP_VERIFY_TOKEN   — any string you choose; Meta echoes it back during webhook setup
 [vars]
 GEMINI_MODEL = "gemini-3.1-flash-lite"
+WHATSAPP_PHONE_NUMBER_ID = ""
