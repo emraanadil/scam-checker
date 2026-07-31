@@ -21,22 +21,35 @@ chrome.runtime.onStartup.addListener(revalidateLicenseIfDue);
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   if (info.menuItemId !== MENU_ID || !info.selectionText || !tab?.id) return;
 
-  await injectOverlay(tab.id);
-
-  const allowed = await canCheck();
-  if (!allowed) {
-    await callInPage(tab.id, "__sscShowUpgrade");
+  // Chrome blocks script injection into its own internal pages (chrome://,
+  // the Web Store, the new tab page, etc). The context menu item still shows
+  // up there since Chrome doesn't filter by URL, so bail out quietly instead
+  // of throwing — there's nowhere to render the card on those pages anyway.
+  if (!/^https?:\/\//.test(tab.url || "")) {
+    console.warn("Senior Scam Checker: can't run on this page:", tab.url);
     return;
   }
 
-  await callInPage(tab.id, "__sscShowLoading");
-
   try {
-    const verdict = await checkText(info.selectionText);
-    await recordCheck();
-    await callInPage(tab.id, "__sscShowResult", verdict);
+    await injectOverlay(tab.id);
+
+    const allowed = await canCheck();
+    if (!allowed) {
+      await callInPage(tab.id, "__sscShowUpgrade");
+      return;
+    }
+
+    await callInPage(tab.id, "__sscShowLoading");
+
+    try {
+      const verdict = await checkText(info.selectionText);
+      await recordCheck();
+      await callInPage(tab.id, "__sscShowResult", verdict);
+    } catch (err) {
+      await callInPage(tab.id, "__sscShowError", err.message || "Please try again.");
+    }
   } catch (err) {
-    await callInPage(tab.id, "__sscShowError", err.message || "Please try again.");
+    console.warn("Senior Scam Checker: couldn't show the card on this page:", err);
   }
 });
 
