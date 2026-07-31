@@ -1,19 +1,30 @@
 const textInput = document.getElementById("text-input");
 const imageInput = document.getElementById("image-input");
 const checkTextBtn = document.getElementById("check-text-btn");
-const usageEl = document.getElementById("usage");
+const usageBarFill = document.getElementById("usage-bar-fill");
+const usageLabel = document.getElementById("usage-label");
+const usageBar = document.getElementById("usage-bar");
 const resultEl = document.getElementById("result");
+const resultIcon = document.getElementById("result-icon");
 const resultTitle = document.getElementById("result-title");
 const resultReason = document.getElementById("result-reason");
 const resultAction = document.getElementById("result-action");
+const resetBtn = document.getElementById("reset-btn");
 const upgradeEl = document.getElementById("upgrade");
 const upgradeBtn = document.getElementById("upgrade-btn");
+const optionsBtn = document.getElementById("options-btn");
+const privacyLink = document.getElementById("privacy-link");
 
 const VERDICT_LABELS = {
-  scam: "🚨 Likely a scam",
-  legitimate: "✅ Looks legitimate",
-  uncertain: "🤔 Uncertain — be careful",
+  scam: { icon: "⚠️", title: "Likely a Scam" },
+  legitimate: { icon: "✅", title: "Looks Legitimate" },
+  uncertain: { icon: "❓", title: "Not Sure — Be Careful" },
 };
+
+privacyLink.href = "https://scam-checker-privacy.emraanadil.workers.dev/";
+optionsBtn.addEventListener("click", () => chrome.runtime.openOptionsPage());
+upgradeBtn.addEventListener("click", () => chrome.runtime.openOptionsPage());
+resetBtn.addEventListener("click", resetForm);
 
 renderUsage();
 
@@ -29,12 +40,6 @@ imageInput.addEventListener("change", async () => {
   const base64 = await fileToBase64(file);
   await runCheck(() => checkImage(base64, file.type || "image/jpeg"));
   imageInput.value = "";
-});
-
-upgradeBtn.addEventListener("click", () => {
-  chrome.tabs.create({
-    url: "mailto:emraanadil.dsp@gmail.com?subject=Senior%20Scam%20Checker%20Pro",
-  });
 });
 
 async function runCheck(fetchFn) {
@@ -61,29 +66,49 @@ async function runCheck(fetchFn) {
 }
 
 function showResult(verdict) {
-  resultTitle.textContent = VERDICT_LABELS[verdict.verdict] || "Result";
+  const labels = VERDICT_LABELS[verdict.verdict] || { icon: "❓", title: "Result" };
+  resultEl.dataset.verdict = verdict.verdict;
+  resultIcon.textContent = labels.icon;
+  resultTitle.textContent = labels.title;
   resultReason.textContent = verdict.reason;
-  resultAction.textContent = verdict.action;
+  resultAction.textContent = verdict.action ? `What to do: ${verdict.action}` : "";
   resultEl.hidden = false;
+  resultEl.scrollIntoView({ behavior: "smooth", block: "nearest" });
 }
 
 function showError(message) {
-  resultTitle.textContent = "⚠️ Couldn't complete the check";
+  resultEl.dataset.verdict = "error";
+  resultIcon.textContent = "⚠️";
+  resultTitle.textContent = "Couldn't complete the check";
   resultReason.textContent = message;
   resultAction.textContent = "";
   resultEl.hidden = false;
 }
 
+function resetForm() {
+  textInput.value = "";
+  resultEl.hidden = true;
+  textInput.focus();
+}
+
 function setLoading(isLoading) {
   checkTextBtn.disabled = isLoading;
-  checkTextBtn.textContent = isLoading ? "Checking…" : "Check text";
+  checkTextBtn.innerHTML = isLoading
+    ? '<span class="spinner"></span>Checking…'
+    : "Check text";
 }
 
 async function renderUsage() {
   const usage = await getUsage();
-  usageEl.textContent = usage.isPro
-    ? "Unlimited checks (Pro)"
-    : `${usage.remaining} of ${usage.limit} free checks left this month`;
+  if (usage.isPro) {
+    usageBar.hidden = true;
+    return;
+  }
+  usageBar.hidden = false;
+  const pct = usage.limit ? Math.round((usage.count / usage.limit) * 100) : 0;
+  usageBarFill.style.width = `${Math.min(100, pct)}%`;
+  usageBarFill.classList.toggle("low", usage.remaining <= 1);
+  usageLabel.textContent = `${usage.remaining}/${usage.limit} free`;
 }
 
 function fileToBase64(file) {

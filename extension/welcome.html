@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Welcome to Senior Scam Checker</title>
+  <link rel="stylesheet" href="base.css" />
+  <style>
+    body { display: flex; justify-content: center; padding: 48px 20px; }
+    .wrap { max-width: 560px; width: 100%; }
+    .hero { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+    .hero img { width: 48px; height: 48px; border-radius: 12px; }
+    .hero h1 { font-size: 24px; margin: 0; }
+    .hero p { margin: 4px 0 0; color: var(--subtle); font-size: 14px; }
+    .step {
+      display: flex;
+      gap: 14px;
+      padding: 18px;
+      border-radius: var(--radius-lg);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--primary);
+      color: var(--primary-text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+    }
+    .step h2 { font-size: 15px; margin: 0 0 4px; }
+    .step p { font-size: 13px; color: var(--subtle); margin: 0; line-height: 1.5; }
+    .privacy-note {
+      margin-top: 20px;
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      background: rgba(11,95,255,0.06);
+      font-size: 12.5px;
+      color: var(--subtle);
+      line-height: 1.5;
+    }
+    .cta { margin-top: 24px; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <img src="icons/icon48.png" alt="" />
+      <div>
+        <h1>Welcome to Senior Scam Checker</h1>
+        <p>Scam protection for the whole family, right in your browser.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">1</div>
+      <div>
+        <h2>Select any suspicious text</h2>
+        <p>An email, a text message, a comment — anywhere on the web. Highlight it with your mouse.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">2</div>
+      <div>
+        <h2>Right-click and choose "Check for scam"</h2>
+        <p>A card appears right on the page in a few seconds with a plain-English verdict and what to do next.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-num">3</div>
+      <div>
+        <h2>Or use the toolbar icon anytime</h2>
+        <p>Click the Senior Scam Checker icon to paste text or upload a photo of a letter directly.</p>
+      </div>
+    </div>
+
+    <div class="privacy-note">
+      🔒 What you check is sent only to our scam-detection service to get a verdict — it's never stored, sold, or
+      used for anything else.
+    </div>
+
+    <div class="cta">
+      <button class="btn btn-primary" onclick="window.close()">Got it, let's go</button>
+    </div>
+  </div>
+  <script src="lib/appearance.js"></script>
+</body>
+</html>

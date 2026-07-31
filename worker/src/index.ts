@@ -1,7 +1,8 @@
 import { runScamCheck, ScamCheckError, type GeminiEnv } from "./gemini";
 import { handleIncomingMessage, handleVerification, type WhatsAppEnv } from "./whatsapp";
+import { verifyLicense, type LicenseEnv } from "./license";
 
-export interface Env extends GeminiEnv, WhatsAppEnv {}
+export interface Env extends GeminiEnv, WhatsAppEnv, LicenseEnv {}
 
 interface CheckRequestBody {
   text?: string;
@@ -25,6 +26,10 @@ export default {
 
     if (url.pathname === "/check" && request.method === "POST") {
       return handleCheck(request, env);
+    }
+
+    if (url.pathname === "/license/verify" && request.method === "POST") {
+      return handleLicenseVerify(request, env);
     }
 
     if (url.pathname === "/whatsapp/webhook") {
@@ -70,6 +75,22 @@ async function handleCheck(request: Request, env: Env): Promise<Response> {
     console.error("Check request failed", err);
     return jsonResponse({ error: message }, 500);
   }
+}
+
+async function handleLicenseVerify(request: Request, env: Env): Promise<Response> {
+  let body: { key?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: "Invalid JSON body" }, 400);
+  }
+
+  if (!body.key) {
+    return jsonResponse({ error: '"key" is required.' }, 400);
+  }
+
+  const valid = await verifyLicense(body.key, env);
+  return jsonResponse({ valid }, 200);
 }
 
 async function handleWhatsAppWebhook(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {

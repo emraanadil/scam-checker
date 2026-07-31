@@ -12,3 +12,9 @@ enabled = true
 [vars]
 GEMINI_MODEL = "gemini-3.1-flash-lite"
 WHATSAPP_PHONE_NUMBER_ID = "1299787523207225"
+
+# Holds Pro license keys for the browser extension. Issue a key after a sale with:
+#   npx wrangler kv key put --binding=LICENSES "<key>" "active"
+[[kv_namespaces]]
+binding = "LICENSES"
+id = "775023e87ec94b4099514921dc65e925"
