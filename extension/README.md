@@ -64,12 +64,22 @@ worker that auto-generates and KV-writes a key (and emails it) on successful
 payment. Needs a Stripe account — that part has to be a human decision
 (pricing, business entity, tax handling), not something to wire up silently.
 
+## Icon credit
+
+The shield-check glyph in `icons/` is [Lucide](https://lucide.dev)'s
+`shield-check` icon (`icons/source.svg` has the original), composited onto a
+brand-blue rounded square and rasterized with `rsvg-convert`. Lucide is
+ISC-licensed — free for commercial use, no attribution legally required, but
+crediting it here since it's their design. To swap in a different Lucide
+icon later: grab the SVG from
+`https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/<name>.svg`,
+drop its `<path>` into `icons/source.svg`, then re-run
+`rsvg-convert -w <size> -h <size> source.svg -o icon<size>.png` for 16/32/48/128.
+
 ## What's a placeholder right now
 
 - No options page yet for bulk-managing licenses (KV writes are done via the
   `wrangler` CLI, above).
-- Icons are a generated flat rounded-square badge with a checkmark — clean
-  and on-brand, but consider a designer pass before a big marketing push.
 
 ## Publishing to the Chrome Web Store
 
