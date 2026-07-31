@@ -207,6 +207,10 @@
       line-height: 1.5;
       font-weight: 600;
     }
+    /* all:initial plus an explicit display resets the UA's
+       [hidden] { display: none }, so the empty button rendered as a stray
+       blue bar on every card. Restore hiding explicitly. */
+    .ssc-cta[hidden] { display: none; }
     .ssc-cta {
       all: initial;
       display: block;
