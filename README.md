@@ -8,6 +8,8 @@ do next. Built for older adults who are frequent scam targets.
   TypeScript) app.
 - `worker/` — a Cloudflare Worker backend that holds a Google Gemini API key
   and proxies the scam-check request to Gemini (free tier).
+- `extension/` — a Chromium browser extension (right-click any selected text
+  on any page to check it). See `extension/README.md` to load it locally.
 
 Get a free Gemini API key at https://aistudio.google.com/apikey — no credit
 card required. Note: on the free tier, Google may use submitted data to
