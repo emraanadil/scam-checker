@@ -2,11 +2,20 @@ importScripts("lib/api.js", "lib/usage.js", "lib/license.js");
 
 const MENU_ID = "check-scam-selection";
 
+// Printed on every service-worker start so you can tell at a glance, from the
+// service worker console, which build Chrome is actually running — unpacked
+// extensions do NOT pick up file changes until you hit reload.
+console.log(`Senior Scam Checker: background v${chrome.runtime.getManifest().version} ready`);
+
 chrome.runtime.onInstalled.addListener((details) => {
-  chrome.contextMenus.create({
-    id: MENU_ID,
-    title: 'Check for scam: "%s"',
-    contexts: ["selection"],
+  // removeAll first so a reload/update can't fail with "duplicate id", which
+  // would leave the extension with no working context menu at all.
+  chrome.contextMenus.removeAll(() => {
+    chrome.contextMenus.create({
+      id: MENU_ID,
+      title: 'Check for scam: "%s"',
+      contexts: ["selection"],
+    });
   });
 
   if (details.reason === "install") {
@@ -53,9 +62,18 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
   }
 });
 
-chrome.runtime.onMessage.addListener((message, sender) => {
+chrome.runtime.onMessage.addListener((message) => {
   if (message?.type === "open-popup") {
-    chrome.action.openPopup();
+    // openPopup() only exists in Chrome 127+, and even there it throws if
+    // there's no active window. The options page carries the same upgrade
+    // flow, so fall back to that rather than doing nothing.
+    try {
+      const opening = chrome.action.openPopup?.();
+      if (opening?.catch) opening.catch(() => chrome.runtime.openOptionsPage());
+      else if (!chrome.action.openPopup) chrome.runtime.openOptionsPage();
+    } catch {
+      chrome.runtime.openOptionsPage();
+    }
   }
 });
 

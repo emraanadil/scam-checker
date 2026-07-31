@@ -1,4 +1,11 @@
 (function () {
+  // background.js re-injects this file on every right-click, and Chrome's
+  // isolated world persists for the tab's lifetime. Re-running is harmless
+  // (everything below is assignment, not declaration) but pointless, so bail
+  // out early once we've already set ourselves up.
+  if (window.__sscInitialized) return;
+  window.__sscInitialized = true;
+
   const HOST_ID = "__senior-scam-checker-host__";
   const AUTO_DISMISS_MS = 18000;
   let dismissTimer = null;

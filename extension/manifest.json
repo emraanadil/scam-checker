@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Senior Scam Checker",
   "short_name": "Scam Checker",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Right-click any suspicious text on any page to instantly check whether it's a scam. Trusted, plain-English protection for the whole family.",
   "permissions": ["contextMenus", "storage", "activeTab", "scripting"],
   "host_permissions": [
