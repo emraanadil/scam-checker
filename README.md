@@ -134,6 +134,26 @@ WhatsApp number:
    to the test number from one of your 5 verified numbers — you should get a
    verdict reply.
 
+**If "Verify and Save" succeeds but you never get a reply**: saving the
+Callback URL only proves the URL is reachable — it does *not* subscribe your
+app to the WABA's events. Check which app is actually subscribed with:
+
+```
+curl "https://graph.facebook.com/v21.0/<WABA_ID>/subscribed_apps" \
+  -H "Authorization: Bearer <access-token>"
+```
+
+If your app isn't listed (Meta sometimes leaves only its own internal
+"WA DevX Webhook Events" app subscribed), subscribe it explicitly:
+
+```
+curl -X POST "https://graph.facebook.com/v21.0/<WABA_ID>/subscribed_apps" \
+  -H "Authorization: Bearer <access-token>"
+```
+
+`WABA_ID` is the **WhatsApp Business Account ID** shown next to the Phone
+Number ID on the API Setup page.
+
 Going from the test number to a real production number that anyone can
 message requires Meta Business Verification, which needs a registered
 business entity and can take real time to clear — plan for that separately

@@ -11,4 +11,4 @@ enabled = true
 #   WHATSAPP_VERIFY_TOKEN   — any string you choose; Meta echoes it back during webhook setup
 [vars]
 GEMINI_MODEL = "gemini-3.1-flash-lite"
-WHATSAPP_PHONE_NUMBER_ID = ""
+WHATSAPP_PHONE_NUMBER_ID = "1299787523207225"
