@@ -42,7 +42,12 @@ buyBtn.addEventListener("click", () => {
   const body = encodeURIComponent(
     "Hi, I'd like to buy Senior Scam Checker Pro ($19.99 one-time). Please send payment instructions and a license key."
   );
-  chrome.tabs.create({ url: `mailto:emraanadil.dsp@gmail.com?subject=${subject}&body=${body}` });
+  // chrome.tabs.create() with a mailto: URL is unreliable in MV3 (silently
+  // fails on some Chrome versions since it's a non-http(s) scheme). A real
+  // <a> click is the standard reliable way to hand off to the OS mail client.
+  const link = document.createElement("a");
+  link.href = `mailto:emraanadil.dsp@gmail.com?subject=${subject}&body=${body}`;
+  link.click();
 });
 
 activateBtn.addEventListener("click", async () => {
