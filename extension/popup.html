@@ -3,41 +3,71 @@
 <head>
   <meta charset="utf-8" />
   <title>Senior Scam Checker</title>
+  <link rel="stylesheet" href="base.css" />
   <link rel="stylesheet" href="popup.css" />
 </head>
 <body>
-  <header>
-    <img src="icons/icon48.png" alt="" />
-    <h1>Senior Scam Checker</h1>
-  </header>
+  <div class="popup">
+    <header>
+      <img src="icons/icon32.png" alt="" />
+      <div>
+        <h1>Senior Scam Checker</h1>
+        <p class="tagline">Scam protection for the whole family</p>
+      </div>
+      <button id="options-btn" class="icon-btn" title="Settings" aria-label="Settings">⚙</button>
+    </header>
 
-  <p id="usage" class="usage"></p>
+    <div id="usage-bar" class="usage-bar">
+      <div class="usage-bar-track">
+        <div id="usage-bar-fill" class="usage-bar-fill"></div>
+      </div>
+      <span id="usage-label" class="usage-label"></span>
+    </div>
 
-  <textarea id="text-input" placeholder="Paste a suspicious message, email, or text here…" rows="5"></textarea>
+    <textarea id="text-input" placeholder="Paste a suspicious message, email, or text here…" rows="5"></textarea>
 
-  <div class="row">
-    <button id="check-text-btn" class="primary">Check text</button>
-    <label class="file-btn">
-      Check a photo
-      <input type="file" id="image-input" accept="image/*" hidden />
-    </label>
+    <div class="row">
+      <button id="check-text-btn" class="btn btn-primary">Check text</button>
+      <label class="btn btn-secondary file-btn">
+        📷 Photo
+        <input type="file" id="image-input" accept="image/*" hidden />
+      </label>
+    </div>
+
+    <p class="hint">Tip: select text on any webpage, right-click, and choose "Check for scam" too.</p>
+
+    <div id="result" class="result-card" hidden>
+      <div class="result-header">
+        <span id="result-icon" class="result-icon"></span>
+        <span id="result-title" class="result-title"></span>
+      </div>
+      <p id="result-reason"></p>
+      <p id="result-action" class="result-action"></p>
+      <button id="reset-btn" class="btn btn-secondary">Check something else</button>
+    </div>
+
+    <div id="upgrade" class="upgrade-card" hidden>
+      <p class="upgrade-title">⭐ Go unlimited</p>
+      <p class="upgrade-sub">You've used all your free checks this month.</p>
+      <ul class="upgrade-features">
+        <li>Unlimited scam checks, every day</li>
+        <li>Priority checks — no waiting</li>
+        <li>Support an independent, ad-free tool</li>
+      </ul>
+      <button id="upgrade-btn" class="btn btn-primary">Get Pro</button>
+    </div>
+
+    <footer>
+      <a href="options.html" target="_blank" rel="noopener">Settings</a>
+      <span>·</span>
+      <a id="privacy-link" href="#" target="_blank" rel="noopener">Privacy</a>
+    </footer>
   </div>
 
-  <p class="hint">Tip: select text on any webpage, right-click, and choose "Check for scam" too.</p>
-
-  <div id="result" class="result" hidden>
-    <p id="result-title"></p>
-    <p id="result-reason"></p>
-    <p id="result-action"></p>
-  </div>
-
-  <div id="upgrade" class="upgrade" hidden>
-    <p>You've used all your free checks this month.</p>
-    <button id="upgrade-btn" class="primary">Upgrade for unlimited checks</button>
-  </div>
-
+  <script src="lib/appearance.js"></script>
   <script src="lib/api.js"></script>
   <script src="lib/usage.js"></script>
+  <script src="lib/license.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

@@ -1,54 +1,62 @@
-importScripts("lib/api.js", "lib/usage.js");
+importScripts("lib/api.js", "lib/usage.js", "lib/license.js");
 
 const MENU_ID = "check-scam-selection";
-const ICON_URL = chrome.runtime.getURL("icons/icon128.png");
 
-const VERDICT_LABELS = {
-  scam: "🚨 Likely a scam",
-  legitimate: "✅ Looks legitimate",
-  uncertain: "🤔 Uncertain — be careful",
-};
-
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener((details) => {
   chrome.contextMenus.create({
     id: MENU_ID,
     title: 'Check for scam: "%s"',
     contexts: ["selection"],
   });
+
+  if (details.reason === "install") {
+    chrome.tabs.create({ url: chrome.runtime.getURL("welcome.html") });
+  }
+
+  revalidateLicenseIfDue();
 });
 
-chrome.contextMenus.onClicked.addListener(async (info) => {
-  if (info.menuItemId !== MENU_ID || !info.selectionText) return;
+chrome.runtime.onStartup.addListener(revalidateLicenseIfDue);
+
+chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+  if (info.menuItemId !== MENU_ID || !info.selectionText || !tab?.id) return;
+
+  await injectOverlay(tab.id);
 
   const allowed = await canCheck();
   if (!allowed) {
-    notify(
-      "Free checks used up this month",
-      "Open the Senior Scam Checker icon in your toolbar to upgrade for unlimited checks."
-    );
+    await callInPage(tab.id, "__sscShowUpgrade");
     return;
   }
 
-  notify("Checking…", "Senior Scam Checker is analyzing the selected text.");
+  await callInPage(tab.id, "__sscShowLoading");
 
   try {
     const verdict = await checkText(info.selectionText);
     await recordCheck();
-    notify(
-      VERDICT_LABELS[verdict.verdict] || "Result",
-      `${verdict.reason} ${verdict.action}`.slice(0, 250)
-    );
+    await callInPage(tab.id, "__sscShowResult", verdict);
   } catch (err) {
-    notify("Couldn't complete the check", err.message || "Please try again.");
+    await callInPage(tab.id, "__sscShowError", err.message || "Please try again.");
   }
 });
 
-function notify(title, message) {
-  chrome.notifications.create({
-    type: "basic",
-    iconUrl: ICON_URL,
-    title,
-    message,
-    priority: 1,
+chrome.runtime.onMessage.addListener((message, sender) => {
+  if (message?.type === "open-popup") {
+    chrome.action.openPopup();
+  }
+});
+
+async function injectOverlay(tabId) {
+  await chrome.scripting.executeScript({
+    target: { tabId },
+    files: ["lib/theme.js", "content.js"],
+  });
+}
+
+async function callInPage(tabId, fnName, arg) {
+  await chrome.scripting.executeScript({
+    target: { tabId },
+    func: (name, value) => window[name](value),
+    args: [fnName, arg],
   });
 }

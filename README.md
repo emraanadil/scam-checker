@@ -66,6 +66,8 @@ via Expo Go against `localhost` only works while your computer is running.
 cd worker
 npx wrangler login                     # opens a browser to log into Cloudflare (free account is fine)
 npx wrangler secret put GEMINI_API_KEY # paste your real key when prompted
+npx wrangler kv namespace create LICENSES   # only needed once — backs the browser extension's Pro licenses
+                                             # paste the id it prints into the [[kv_namespaces]] block in wrangler.toml
 npm run deploy                         # deploys to https://senior-scam-checker-api.<your-subdomain>.workers.dev
 ```
 

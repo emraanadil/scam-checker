@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Senior Scam Checker — Settings</title>
+  <link rel="stylesheet" href="base.css" />
+  <link rel="stylesheet" href="options.css" />
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="icons/icon48.png" alt="" />
+      <h1>Senior Scam Checker</h1>
+    </header>
+
+    <section class="card">
+      <h2>Appearance</h2>
+      <div class="option-row">
+        <span>Theme</span>
+        <div class="segmented" id="appearance-group">
+          <button data-value="system" class="seg-btn">System</button>
+          <button data-value="light" class="seg-btn">Light</button>
+          <button data-value="dark" class="seg-btn">Dark</button>
+        </div>
+      </div>
+      <div class="option-row">
+        <span>Text size</span>
+        <div class="segmented" id="text-size-group">
+          <button data-value="normal" class="seg-btn">Normal</button>
+          <button data-value="large" class="seg-btn">Large</button>
+          <button data-value="extraLarge" class="seg-btn">Extra Large</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card" id="pro-section">
+      <div id="pro-active" hidden>
+        <h2>⭐ Pro is active</h2>
+        <p class="muted">You have unlimited scam checks. Thank you for supporting the project.</p>
+        <button id="deactivate-btn" class="btn btn-secondary">Remove license from this browser</button>
+      </div>
+
+      <div id="pro-inactive">
+        <h2>Go Pro — unlimited checks</h2>
+        <p class="muted">Free accounts get 5 checks a month. Pro removes the limit, forever, with a one-time
+          purchase — no subscription.</p>
+        <div class="price-tag">$19.99 <span>one-time</span></div>
+        <button id="buy-btn" class="btn btn-primary">Buy Pro</button>
+
+        <div class="license-entry">
+          <label for="license-input">Already have a license key?</label>
+          <div class="license-row">
+            <input type="text" id="license-input" placeholder="Paste your license key" />
+            <button id="activate-btn" class="btn btn-secondary">Activate</button>
+          </div>
+          <p id="license-status" class="license-status"></p>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>About</h2>
+      <p class="muted">Version 1.0.0</p>
+      <p class="links">
+        <a href="https://scam-checker-privacy.emraanadil.workers.dev/" target="_blank" rel="noopener">Privacy Policy</a>
+        <span>·</span>
+        <a href="mailto:emraanadil.dsp@gmail.com">Contact Support</a>
+      </p>
+    </section>
+  </div>
+
+  <script src="lib/appearance.js"></script>
+  <script src="lib/api.js"></script>
+  <script src="lib/license.js"></script>
+  <script src="options.js"></script>
+</body>
+</html>
