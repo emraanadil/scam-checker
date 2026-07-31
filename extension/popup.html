@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Senior Scam Checker</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <header>
+    <img src="icons/icon48.png" alt="" />
+    <h1>Senior Scam Checker</h1>
+  </header>
+
+  <p id="usage" class="usage"></p>
+
+  <textarea id="text-input" placeholder="Paste a suspicious message, email, or text here…" rows="5"></textarea>
+
+  <div class="row">
+    <button id="check-text-btn" class="primary">Check text</button>
+    <label class="file-btn">
+      Check a photo
+      <input type="file" id="image-input" accept="image/*" hidden />
+    </label>
+  </div>
+
+  <p class="hint">Tip: select text on any webpage, right-click, and choose "Check for scam" too.</p>
+
+  <div id="result" class="result" hidden>
+    <p id="result-title"></p>
+    <p id="result-reason"></p>
+    <p id="result-action"></p>
+  </div>
+
+  <div id="upgrade" class="upgrade" hidden>
+    <p>You've used all your free checks this month.</p>
+    <button id="upgrade-btn" class="primary">Upgrade for unlimited checks</button>
+  </div>
+
+  <script src="lib/api.js"></script>
+  <script src="lib/usage.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
