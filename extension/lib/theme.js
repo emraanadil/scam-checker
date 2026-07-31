@@ -1,5 +1,11 @@
 // Shared brand tokens — kept in sync with the mobile app's constants/theme.ts
-const THEME = {
+//
+// Assigned onto `window` (not `const`) because background.js re-injects this
+// file into the same tab's isolated world on every right-click. Chrome's
+// isolated world persists across separate executeScript calls within a tab's
+// lifetime, so a top-level `const` throws "already declared" on the second
+// injection — plain assignment is safe to repeat.
+window.THEME = {
   light: {
     background: "#FFFFFF",
     surface: "#F6F7F9",
@@ -20,7 +26,7 @@ const THEME = {
   },
 };
 
-const VERDICT_TOKENS = {
+window.VERDICT_TOKENS = {
   scam: {
     emoji: "⚠️",
     label: "Likely a Scam",
